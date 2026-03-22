@@ -1,0 +1,1337 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>iπ - 内向者的公园自在之旅 (iPhone 17 预览)</title>
+    <style>
+        /* ====================== iOS 设计规范基础 ====================== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "PingFang SC", "Hiragino Sans GB", "Heiti SC", "Microsoft YaHei", sans-serif;
+        }
+
+        :root {
+            --ip-primary: #4A7B9D; /* 南湖蓝 - 主色 */
+            --ip-secondary: #6F5E48; /* 松果深 - 辅助色 */
+            --ip-green: #7A9E7E; /* 草本绿 - 强调色 */
+            --ip-yellow: #E9B368; /* 秋叶黄 - 点缀色 */
+            --ip-gray1: #F5F5F7; /* iOS浅灰 - 背景 */
+            --ip-gray2: #E5E5EA; /* iOS中灰 - 分割线 */
+            --ip-gray3: #C7C7CC; /* iOS深灰 - 次要文字 */
+            --ip-black: #1C1C1E; /* iOS纯黑 - 主文字 */
+            --safe-area-top: env(safe-area-inset-top);
+            --safe-area-bottom: env(safe-area-inset-bottom);
+            --safe-area-left: env(safe-area-inset-left);
+            --safe-area-right: env(safe-area-inset-right);
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #f0f0f0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            padding: 20px;
+            overflow: hidden; /* 全局禁止滚动，杜绝穿帮 */
+        }
+
+        /* ====================== iPhone 17 硬件级还原 (iOS 设计规范) ====================== */
+        .iphone-17 {
+            width: 100%;
+            max-width: 430px; /* iPhone 17 标准宽度 393pt @3x */
+            aspect-ratio: 393 / 852; /* iPhone 17 精准屏幕比例 (含灵动岛) */
+            background-color: #000;
+            border-radius: 58px; /* iPhone 17 官方圆角尺寸 */
+            padding: 12px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            position: relative;
+            overflow: hidden;
+            margin: 0 auto;
+            transform: scale(0.95);
+            touch-action: none; /* 硬件层禁止触摸操作 */
+        }
+
+        .iphone-screen {
+            width: 100%;
+            height: 100%;
+            background-color: #f5f5f7;
+            border-radius: 46px; /* 屏幕内圆角 (匹配iOS规范) */
+            overflow: hidden;
+            position: relative;
+            touch-action: none; /* 屏幕层禁止触摸操作 */
+        }
+
+        /* ====================== iOS 18 状态栏 + 灵动岛 (严格遵循Apple设计规范) ====================== */
+        /* 灵动岛容器 (Apple官方尺寸: 宽度160pt, 高度37pt) */
+        .dynamic-island {
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 160px;
+            height: 37px;
+            background-color: #000;
+            border-bottom-left-radius: 20px; /* iOS 18 灵动岛圆角规范 */
+            border-bottom-right-radius: 20px;
+            z-index: 10001;
+            /* iOS 官方视觉效果 */
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        /* iOS 18 状态栏 (严格匹配Apple HIG) */
+        .ios-status-bar {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 47px; /* iOS 18 状态栏高度 (含灵动岛) */
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 20px;
+            font-size: 17px; /* iOS 状态栏标准字号 */
+            font-weight: 500; /* iOS 标准字重 */
+            color: #000;
+            z-index: 10000;
+            background-color: #f5f5f7;
+            font-family: -apple-system, "SF Pro Text", sans-serif; /* iOS 原生字体 */
+            letter-spacing: -0.2px; /* iOS 字符间距规范 */
+        }
+
+        .status-left {
+            display: flex;
+            align-items: center;
+        }
+
+        .status-right {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 15px;
+        }
+
+        /* ====================== 开屏页 (APP级防穿透设计) ====================== */
+        .app-splash {
+            position: absolute; 
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #F5F5F7;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 999999; /* 最高层级 (APP级) */
+            transition: opacity 0.8s ease-out;
+            border-radius: 46px;
+            overflow: hidden;
+            cursor: pointer;
+            /* ========== 核心防滑动配置 ========== */
+            touch-action: none; /* 禁止所有触摸行为 (滑动/缩放/双击等) */
+            pointer-events: auto; /* 仅保留点击事件 */
+            user-select: none; /* 禁止文本选择 */
+            -webkit-user-drag: none; /* 禁止图片拖拽 */
+            overscroll-behavior: contain; /* 禁止回弹 */
+        }
+
+        .splash-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+            pointer-events: none; /* 确保点击穿透到开屏层 */
+            user-select: none;
+        }
+
+        .splash-tip {
+            position: absolute;
+            bottom: 60px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 15px;
+            font-weight: 400;
+            text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+            letter-spacing: 0.5px;
+            animation: bounce 2s infinite;
+            z-index: 10;
+            user-select: none;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateX(-50%) translateY(0); }
+            50% { transform: translateX(-50%) translateY(-8px); }
+        }
+
+        /* ====================== 原有内容容器 (iOS 安全区域适配) ====================== */
+        .iphone-content {
+            width: 100%;
+            height: 100%;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+            position: relative;
+            padding-top: 47px; /* 适配iOS状态栏 */
+            padding-bottom: 0;
+            box-sizing: border-box;
+            -webkit-overflow-scrolling: touch; /* iOS 弹性滚动 */
+        }
+
+        /* ====================== 响应式适配 (iOS 设备兼容) ====================== */
+        @media (max-width: 480px) {
+            .iphone-17 {
+                width: 95vw;
+                height: auto;
+                aspect-ratio: 393 / 852;
+                transform: scale(1);
+            }
+        }
+
+        @media (min-width: 768px) {
+            .iphone-17 {
+                transform: scale(0.95);
+                margin: 0 auto;
+            }
+        }
+
+        /* ====================== 原有业务样式 (完整保留) ====================== */
+        .ip-container {
+            max-width: 430px;
+            margin: 0 auto;
+            background-color: var(--ip-gray1);
+            min-height: calc(100vh - 47px);
+            position: relative;
+            padding-bottom: calc(83px + var(--safe-area-bottom));
+        }
+
+        .ip-nav {
+            height: 44px;
+            padding: 0 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background-color: var(--ip-gray1);
+            border-bottom: 0.5px solid var(--ip-gray2);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .ip-nav-title {
+            font-size: 17px;
+            font-weight: 600;
+            color: var(--ip-black);
+            letter-spacing: -0.2px;
+        }
+
+        .ip-nav-action {
+            font-size: 17px;
+            color: var(--ip-primary);
+            font-weight: 500;
+        }
+
+        .ip-tabbar {
+            position: fixed;
+            bottom: calc(12px + var(--safe-area-bottom));
+            left: 50%;
+            transform: translateX(-50%);
+            width: calc(100% - 24px);
+            max-width: 406px;
+            height: 83px;
+            background-color: rgba(255, 255, 255, 0.92);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-top: 0.5px solid var(--ip-gray2);
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            padding-bottom: var(--safe-area-bottom);
+            z-index: 90;
+            border-radius: 0 0 46px 46px;
+        }
+
+        .ip-tab-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            flex: 1;
+            height: 100%;
+            color: var(--ip-gray3);
+            transition: all 0.2s ease;
+        }
+
+        .ip-tab-item.active {
+            color: var(--ip-primary);
+        }
+
+        .ip-tab-icon {
+            font-size: 24px;
+            margin-bottom: 2px;
+        }
+
+        .ip-tab-label {
+            font-size: 10px;
+            font-weight: 500;
+            letter-spacing: -0.1px;
+        }
+
+        .ip-page {
+            display: none;
+            padding: 16px;
+            animation: pageIn 0.3s ease-out;
+            min-height: calc(100vh - 130px);
+        }
+
+        .ip-page.active {
+            display: block;
+        }
+
+        @keyframes pageIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .ip-card {
+            background-color: #FFFFFF;
+            border-radius: 20px;
+            padding: 16px;
+            margin-bottom: 12px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+            border: 0.5px solid var(--ip-gray2);
+            transition: transform 0.2s ease;
+        }
+
+        .ip-card:active {
+            transform: scale(0.98);
+        }
+
+        .ip-card-title {
+            font-size: 17px;
+            font-weight: 600;
+            color: var(--ip-black);
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .ip-card-tag {
+            padding: 2px 8px;
+            background-color: rgba(74, 123, 157, 0.1);
+            border-radius: 12px;
+            font-size: 11px;
+            color: var(--ip-primary);
+            font-weight: 500;
+        }
+
+        .ip-card-desc {
+            font-size: 14px;
+            color: var(--ip-gray3);
+            line-height: 1.5;
+            margin-bottom: 12px;
+        }
+
+        .ip-card-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 12px;
+            color: var(--ip-gray3);
+        }
+
+        .ip-filter-wrap {
+            display: flex;
+            gap: 8px;
+            padding: 8px 0;
+            overflow-x: auto;
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+            margin-bottom: 16px;
+        }
+
+        .ip-filter-wrap::-webkit-scrollbar {
+            display: none;
+        }
+
+        .ip-filter-tag {
+            padding: 8px 16px;
+            background-color: #FFFFFF;
+            border: 0.5px solid var(--ip-gray2);
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--ip-black);
+            white-space: nowrap;
+            transition: all 0.2s ease;
+        }
+
+        .ip-filter-tag.active {
+            background-color: var(--ip-primary);
+            color: #FFFFFF;
+            border-color: var(--ip-primary);
+        }
+
+        .ip-map {
+            width: 100%;
+            height: auto;
+            border-radius: 20px;
+            background-color: #F8F8FA;
+            margin-bottom: 16px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .ip-map-img {
+            width: 100%;
+            height: auto;
+            object-fit: contain;
+            opacity: 0.9;
+            display: block;
+            margin: 0 auto;
+        }
+
+        .ip-map-point {
+            position: absolute;
+            width: 32px;
+            height: 32px;
+            background-color: var(--ip-primary);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 12px;
+            font-weight: bold;
+            box-shadow: 0 2px 8px rgba(74, 123, 157, 0.3);
+            transform: translate(-50%, -50%);
+            display: none;
+        }
+
+        .ip-route-builder {
+            background-color: #FFFFFF;
+            border-radius: 20px;
+            padding: 16px;
+            margin-bottom: 16px;
+            border: 0.5px solid var(--ip-gray2);
+        }
+
+        .ip-route-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--ip-black);
+            margin-bottom: 12px;
+        }
+
+        .ip-route-list {
+            margin-bottom: 16px;
+        }
+
+        .ip-route-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 8px 0;
+            border-bottom: 0.5px solid var(--ip-gray2);
+        }
+
+        .ip-route-item:last-child {
+            border-bottom: none;
+        }
+
+        .ip-route-check {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            border: 1px solid var(--ip-gray3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .ip-route-check.active {
+            background-color: var(--ip-primary);
+            border-color: var(--ip-primary);
+            color: white;
+        }
+
+        .ip-route-btn {
+            width: 100%;
+            padding: 12px 0;
+            background-color: var(--ip-primary);
+            color: white;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 500;
+            text-align: center;
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+        }
+
+        .ip-route-btn:active {
+            background-color: #3A6B8D;
+        }
+
+        .ip-ugc-item {
+            display: flex;
+            gap: 12px;
+            padding: 12px 0;
+            border-bottom: 0.5px solid var(--ip-gray2);
+            margin-bottom: 8px;
+        }
+
+        .ip-ugc-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            flex-shrink: 0;
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+        }
+
+        .ip-ugc-content {
+            flex: 1;
+        }
+
+        .ip-ugc-name {
+            font-size: 15px;
+            font-weight: 500;
+            color: var(--ip-black);
+            margin-bottom: 4px;
+        }
+
+        .ip-ugc-text {
+            font-size: 14px;
+            color: var(--ip-black);
+            line-height: 1.4;
+            margin-bottom: 8px;
+        }
+
+        .ip-ugc-imgs {
+            margin-bottom: 8px;
+            display: grid;
+            gap: 4px;
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        .ip-ugc-imgs.single {
+            grid-template-columns: 1fr;
+            width: 100%;
+        }
+
+        .ip-ugc-imgs.double {
+            grid-template-columns: repeat(2, 1fr);
+            width: 100%;
+        }
+
+        .ip-ugc-imgs.triple {
+            grid-template-columns: repeat(3, 1fr);
+            width: 100%;
+        }
+
+        .ip-ugc-img-item {
+            width: 100%;
+            height: auto;
+            aspect-ratio: 1/1;
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+        }
+
+        .ip-ugc-meta {
+            display: flex;
+            gap: 16px;
+            font-size: 12px;
+            color: var(--ip-gray3);
+        }
+
+        .ip-profile-header {
+            text-align: center;
+            padding: 24px 0;
+            margin-bottom: 16px;
+        }
+
+        .ip-profile-avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background-color: var(--ip-primary);
+            margin: 0 auto 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 32px;
+            font-weight: bold;
+        }
+
+        .ip-profile-name {
+            font-size: 20px;
+            font-weight: 600;
+            color: var(--ip-black);
+            margin-bottom: 4px;
+        }
+
+        .ip-profile-tag {
+            font-size: 13px;
+            color: var(--ip-primary);
+            font-weight: 500;
+        }
+
+        .ip-profile-menu {
+            background-color: white;
+            border-radius: 20px;
+            overflow: hidden;
+            border: 0.5px solid var(--ip-gray2);
+        }
+
+        .ip-profile-menu-item {
+            padding: 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 0.5px solid var(--ip-gray2);
+            font-size: 17px;
+            font-weight: 500;
+            color: var(--ip-black);
+        }
+
+        .ip-profile-menu-item:last-child {
+            border-bottom: none;
+        }
+
+        .ip-profile-menu-icon {
+            color: var(--ip-gray3);
+            font-size: 18px;
+        }
+
+        .ip-toast {
+            position: fixed;
+            bottom: 120px;
+            left: 50%;
+            transform: translateX(-50%) translateY(20px);
+            background-color: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 100px;
+            font-size: 14px;
+            font-weight: 400;
+            z-index: 999;
+            opacity: 0;
+            transition: all 0.3s ease;
+        }
+
+        .ip-toast.show {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+        }
+
+        .ip-detail-header {
+            position: relative;
+            width: 100%;
+            height: auto;
+            border-radius: 20px;
+            overflow: hidden;
+            margin-bottom: 16px;
+        }
+
+        .ip-detail-img {
+            width: 100%;
+            height: auto;
+            object-fit: cover;
+            display: block;
+        }
+
+        .ip-detail-back {
+            position: absolute;
+            top: 16px;
+            left: 16px;
+            width: 36px;
+            height: 36px;
+            background-color: rgba(255, 255, 255, 0.8);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--ip-black);
+            font-size: 18px;
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            z-index: 10;
+        }
+
+        .ip-detail-title {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--ip-black);
+            margin-bottom: 8px;
+        }
+
+        .ip-detail-tags {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+
+        .ip-detail-desc {
+            font-size: 15px;
+            color: var(--ip-black);
+            line-height: 1.6;
+            margin-bottom: 24px;
+        }
+
+        .ip-detail-action {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+
+        .ip-detail-btn {
+            flex: 1;
+            padding: 12px 0;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 500;
+            text-align: center;
+            border: none;
+            cursor: pointer;
+        }
+
+        .ip-detail-btn-primary {
+            background-color: var(--ip-primary);
+            color: white;
+        }
+
+        .ip-detail-btn-secondary {
+            background-color: white;
+            color: var(--ip-primary);
+            border: 1px solid var(--ip-primary);
+        }
+    </style>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+</head>
+<body>
+    <!-- iPhone 17 硬件容器 (严格遵循iOS设计规范) -->
+    <div class="iphone-17">
+        <div class="iphone-screen">
+            <!-- iOS 18 灵动岛 (Apple官方尺寸/样式) -->
+            <div class="dynamic-island"></div>
+            
+            <!-- iOS 18 状态栏 (严格匹配HIG规范) -->
+            <div class="ios-status-bar">
+                <div class="status-left">9:41</div>
+                <div class="status-right">
+                    <i class="fa fa-signal" aria-hidden="true"></i>
+                    <i class="fa fa-wifi" aria-hidden="true"></i>
+                    <i class="fa fa-battery-full" aria-hidden="true"></i>
+                </div>
+            </div>
+            
+            <!-- 内容容器 -->
+            <div class="iphone-content">
+                <!-- ====================== 开屏页 (APP级防穿透设计) ====================== -->
+                <div class="app-splash" id="splash-screen" onclick="enterApp()">
+                    <img src="https://p3-flow-imagex-sign.byteimg.com/tos-cn-i-a9rns2rl98/44d51107e9374beea8ba773199a01e09.jpg~tplv-a9rns2rl98-image.png?lk3s=8e244e95&rcl=2026031522340656924A980FCB42153CA5&rrcfp=dafada99&x-expires=2089809246&x-signature=e5o53qucWawfsmu76BcawBx4FEk%3D" 
+                         alt="iπ开屏图" class="splash-img">
+                    <div class="splash-tip">点击屏幕 进入iπ世界</div>
+                </div>
+
+                <!-- 原有业务内容 (完整保留) -->
+                <div class="ip-container">
+                    <header class="ip-nav">
+                        <div class="ip-nav-title" id="page-title">iπ · 内向者的公园</div>
+                        <div class="ip-nav-action" id="nav-action">更多</div>
+                    </header>
+
+                    <div class="ip-page active" id="page-home">
+                        <div class="ip-filter-wrap">
+                            <div class="ip-filter-tag active" onclick="filterTag(this, 'all')">全部i点位</div>
+                            <div class="ip-filter-tag" onclick="filterTag(this, 'meditate')">冥想放空</div>
+                            <div class="ip-filter-tag" onclick="filterTag(this, 'read')">安静读书</div>
+                            <div class="ip-filter-tag" onclick="filterTag(this, 'dog')">遛狗散步</div>
+                            <div class="ip-filter-tag" onclick="filterTag(this, 'camp')">轻量露营</div>
+                            <div class="ip-filter-tag" onclick="filterTag(this, 'coffee')">咖啡小憩</div>
+                        </div>
+
+                        <div class="ip-map" id="ip-map-container">
+                            <img src="file:///Users/zhangqing/Desktop/i%CF%80/10@3x8x.png" 
+                                 alt="/Users/zhangqing/Desktop/iπ/10@3x8x.png">
+                            <div class="ip-map-point" style="top: 85%; left: 80%;">1</div>
+                            <div class="ip-map-point" style="top: 55%; left: 40%;">2</div>
+                            <div class="ip-map-point" style="top: 30%; left: 50%;">3</div>
+                        </div>
+
+                        <div class="ip-card" onclick="goPage('detail', '林间小道')">
+                            <div class="ip-card-title">
+                                林间小道
+                                <span class="ip-card-tag">冥想放空</span>
+                            </div>
+                            <div class="ip-card-desc">
+                                被绿植环绕的静谧小道，人少车稀，阳光透过树叶缝隙洒落，适合静坐冥想、放空思绪。
+                            </div>
+                            <div class="ip-card-meta">
+                                <span>步行5分钟可达</span>
+                                <span>当前人数：少</span>
+                            </div>
+                        </div>
+
+                        <div class="ip-card" onclick="goPage('detail', '北小湖')">
+                            <div class="ip-card-title">
+                                北小湖
+                                <span class="ip-card-tag">安静读书</span>
+                            </div>
+                            <div class="ip-card-desc">
+                                湖边木质长椅，视野开阔且远离主路，湖面微风轻拂，是阅读、写笔记的绝佳位置。
+                            </div>
+                            <div class="ip-card-meta">
+                                <span>步行8分钟可达</span>
+                                <span>当前人数：极少</span>
+                            </div>
+                        </div>
+
+                        <div class="ip-card" onclick="goPage('detail', '白桦林')">
+                            <div class="ip-card-title">
+                                白桦林
+                                <span class="ip-card-tag">轻量露营</span>
+                            </div>
+                            <div class="ip-card-desc">
+                                小型林间空地，可搭建轻量化露营装备，周围无商业设施，只有自然的声音，适合独处露营。
+                            </div>
+                            <div class="ip-card-meta">
+                                <span>步行12分钟可达</span>
+                                <span>当前人数：中</span>
+                            </div>
+                        </div>
+
+                        <div class="ip-card" style="background-color: rgba(74, 123, 157, 0.05);" onclick="goPage('route')">
+                            <div class="ip-card-title">
+                                <i class="fa fa-map-o" aria-hidden="true"></i>
+                                生成我的专属i路线
+                            </div>
+                            <div class="ip-card-desc">
+                                选择你喜欢的i点位，生成个性化的20分钟独处路线
+                            </div>
+                            <div class="ip-card-meta">
+                                <span style="color: var(--ip-primary); font-weight: 500;">立即定制 →</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="ip-page" id="page-route">
+                        <div class="ip-route-builder">
+                            <div class="ip-route-title">选择你想前往的i点位</div>
+                            <div class="ip-route-list">
+                                <div class="ip-route-item">
+                                    <div class="ip-route-check" onclick="toggleRouteCheck(this)">
+                                        <i class="fa fa-check" aria-hidden="true"></i>
+                                    </div>
+                                    <div>
+                                        <div style="font-weight: 500;">林间小道</div>
+                                        <div style="font-size: 12px; color: var(--ip-gray3);">冥想放空 · 步行5分钟</div>
+                                    </div>
+                                </div>
+                                <div class="ip-route-item">
+                                    <div class="ip-route-check" onclick="toggleRouteCheck(this)">
+                                        <i class="fa fa-check" aria-hidden="true"></i>
+                                    </div>
+                                    <div>
+                                        <div style="font-weight: 500;">北小湖</div>
+                                        <div style="font-size: 12px; color: var(--ip-gray3);">安静读书 · 步行8分钟</div>
+                                    </div>
+                                </div>
+                                <div class="ip-route-item">
+                                    <div class="ip-route-check" onclick="toggleRouteCheck(this)">
+                                        <i class="fa fa-check" aria-hidden="true"></i>
+                                    </div>
+                                    <div>
+                                        <div style="font-weight: 500;">白桦林</div>
+                                        <div style="font-size: 12px; color: var(--ip-gray3);">轻量露营 · 步行12分钟</div>
+                                    </div>
+                                </div>
+                                <div class="ip-route-item">
+                                    <div class="ip-route-check" onclick="toggleRouteCheck(this)">
+                                        <i class="fa fa-check" aria-hidden="true"></i>
+                                    </div>
+                                    <div>
+                                        <div style="font-weight: 500;">咖啡角</div>
+                                        <div style="font-size: 12px; color: var(--ip-gray3);">咖啡小憩 · 步行3分钟</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <button class="ip-route-btn" onclick="generateRoute()">生成我的20分钟i路线</button>
+                        </div>
+
+                        <div style="font-size: 16px; font-weight: 600; color: var(--ip-black); margin-bottom: 12px;">
+                            推荐i路线
+                        </div>
+                        <div class="ip-card" onclick="showToast('已为你规划「放空治愈路线」')">
+                            <div class="ip-card-title">
+                                放空治愈路线
+                                <span class="ip-card-tag">20分钟</span>
+                            </div>
+                            <div class="ip-card-desc">
+                                林间小道 → 北小湖：从动态放空到静态阅读，循序渐进的情绪放松体验
+                            </div>
+                            <div class="ip-card-meta">
+                                <span>难度：轻松</span>
+                                <span>推荐指数：★★★★★</span>
+                            </div>
+                        </div>
+                        <div class="ip-card" onclick="showToast('已为你规划「自然沉浸路线」')">
+                            <div class="ip-card-title">
+                                自然沉浸路线
+                                <span class="ip-card-tag">30分钟</span>
+                            </div>
+                            <div class="ip-card-desc">
+                                咖啡角 → 林间小道 → 白桦林：从浅度放松到深度沉浸，感受自然的治愈力量
+                            </div>
+                            <div class="ip-card-meta">
+                                <span>难度：中等</span>
+                                <span>推荐指数：★★★★</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="ip-page" id="page-community">
+                        <div class="ip-card" style="background-color: rgba(74, 123, 157, 0.05);" onclick="showToast('发布功能即将上线')">
+                            <div class="ip-card-title">
+                                <i class="fa fa-plus" aria-hidden="true"></i>
+                                分享我的i点位体验
+                            </div>
+                            <div class="ip-card-desc">
+                                上传你的打卡照片，生成专属i点位图，和同频的人分享独处的美好
+                            </div>
+                        </div>
+
+                        <div class="ip-ugc-item">
+                            <div class="ip-ugc-avatar" style="background-image: url('https://picsum.photos/200/200?random=101');"></div>
+                            <div class="ip-ugc-content">
+                                <div class="ip-ugc-name">内向的树</div>
+                                <div class="ip-ugc-text">北小湖的下午太治愈了，坐在长椅上看书，湖面的风吹走了一周的疲惫✨</div>
+                                <div class="ip-ugc-imgs single">
+                                    <div class="ip-ugc-img-item" style="background-image: url('https://p11-flow-imagex-download-sign.byteimg.com/tos-cn-i-a9rns2rl98/bcab8aa44c01493b884c62b458a1137e.png~tplv-a9rns2rl98-24:720:720.png?lk3s=8e244e95&rcl=202603151937327D4D6F0D1A43CAC30DD2&rrcfp=8a172a1a&x-expires=1774179452&x-signature=yd5tHvyfa8itRsuLnsEEpe%2F%2B%2FM0%3D');"></div>
+                                </div>
+                                <div class="ip-ugc-meta">
+                                    <span><i class="fa fa-heart-o" aria-hidden="true"></i> 42</span>
+                                    <span><i class="fa fa-comment-o" aria-hidden="true"></i> 8</span>
+                                    <span>2小时前</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="ip-ugc-item">
+                            <div class="ip-ugc-avatar" style="background-image: url('https://picsum.photos/200/200?random=102');"></div>
+                            <div class="ip-ugc-content">
+                                <div class="ip-ugc-name">安静的行者</div>
+                                <div class="ip-ugc-text">发现林间小道的新视角，在这里冥想15分钟，比睡一觉还解压🌿</div>
+                                <div class="ip-ugc-imgs double">
+                                    <div class="ip-ugc-img-item" style="background-image: url('https://p3-flow-imagex-download-sign.byteimg.com/tos-cn-i-a9rns2rl98/7e334e2e06ff46d3a28908592e36f196.png~tplv-a9rns2rl98-24:720:720.png?lk3s=8e244e95&rcl=202603151937327D4D6F0D1A43CAC30DD2&rrcfp=8a172a1a&x-expires=1774179452&x-signature=2%2B1hsddwi%2BKE8NFK3JPdti6N8O4%3D');"></div>
+                                    <div class="ip-ugc-img-item" style="background-image: url('https://p3-flow-imagex-download-sign.byteimg.com/tos-cn-i-a9rns2rl98/e2aafd77504f4e839de98bc5ca64386d.png~tplv-a9rns2rl98-24:720:720.png?lk3s=8e244e95&rcl=202603151937327D4D6F0D1A43CAC30DD2&rrcfp=8a172a1a&x-expires=1774179452&x-signature=8MASASZTZH3yUaEm9w4FczoORy0%3D');"></div>
+                                </div>
+                                <div class="ip-ugc-meta">
+                                    <span><i class="fa fa-heart-o" aria-hidden="true"></i> 78</span>
+                                    <span><i class="fa fa-comment-o" aria-hidden="true"></i> 12</span>
+                                    <span>昨天</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="ip-ugc-item">
+                            <div class="ip-ugc-avatar" style="background-image: url('https://picsum.photos/200/200?random=103');"></div>
+                            <div class="ip-ugc-content">
+                                <div class="ip-ugc-name">独处的美好</div>
+                                <div class="ip-ugc-text">白桦林的轻量化露营体验，一个人，一把椅子，一杯咖啡，就是整个世界☕</div>
+                                <div class="ip-ugc-imgs triple">
+                                    <div class="ip-ugc-img-item" style="background-image: url('https://p3-flow-imagex-download-sign.byteimg.com/tos-cn-i-a9rns2rl98/0ca8fcdb507545f08d71fcfc475a6d0d.png~tplv-a9rns2rl98-24:720:720.png?lk3s=8e244e95&rcl=202603151937327D4D6F0D1A43CAC30DD2&rrcfp=8a172a1a&x-expires=1774179452&x-signature=YFOZuDrviRBLKOvukQvkaSs7h24%3D');"></div>
+                                    <div class="ip-ugc-img-item" style="background-image: url('https://p11-flow-imagex-download-sign.byteimg.com/tos-cn-i-a9rns2rl98/907ea6636f144a6cb2a88a7832ebbe6f.png~tplv-a9rns2rl98-24:720:720.png?lk3s=8e244e95&rcl=202603151937327D4D6F0D1A43CAC30DD2&rrcfp=8a172a1a&x-expires=1774179452&x-signature=6CKPN%2B3ArsjIolgbIYjVRY4S914%3D');"></div>
+                                    <div class="ip-ugc-img-item" style="background-image: url('https://p11-flow-imagex-download-sign.byteimg.com/tos-cn-i-a9rns2rl98/3bc91bfab6a64583bf318f811a9066af.png~tplv-a9rns2rl98-24:720:720.png?lk3s=8e244e95&rcl=202603151937327D4D6F0D1A43CAC30DD2&rrcfp=8a172a1a&x-expires=1774179452&x-signature=h3%2BaZPdOUig8AW72E41zxIuhz1U%3D');"></div>
+                                </div>
+                                <div class="ip-ugc-meta">
+                                    <span><i class="fa fa-heart-o" aria-hidden="true"></i> 126</span>
+                                    <span><i class="fa fa-comment-o" aria-hidden="true"></i> 24</span>
+                                    <span>3天前</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="ip-page" id="page-me">
+                        <div class="ip-profile-header">
+                            <div class="ip-profile-avatar">π</div>
+                            <div class="ip-profile-name">iπ用户_小安</div>
+                            <div class="ip-profile-tag">内向者 · 公园独处爱好者</div>
+                        </div>
+
+                        <div class="ip-profile-menu">
+                            <div class="ip-profile-menu-item" onclick="showToast('已为你加载收藏的i点位')">
+                                <span><i class="fa fa-star-o" aria-hidden="true"></i> 我的收藏</span>
+                                <i class="fa fa-chevron-right ip-profile-menu-icon" aria-hidden="true"></i>
+                            </div>
+                            <div class="ip-profile-menu-item" onclick="showToast('已为你加载我的路线')">
+                                <span><i class="fa fa-map-o" aria-hidden="true"></i> 我的路线</span>
+                                <i class="fa fa-chevron-right ip-profile-menu-icon" aria-hidden="true"></i>
+                            </div>
+                            <div class="ip-profile-menu-item" onclick="showToast('已为你加载我的打卡')">
+                                <span><i class="fa fa-camera" aria-hidden="true"></i> 我的打卡</span>
+                                <i class="fa fa-chevron-right ip-profile-menu-icon" aria-hidden="true"></i>
+                            </div>
+                            <div class="ip-profile-menu-item" onclick="showToast('设置页面即将上线')">
+                                <span><i class="fa fa-cog" aria-hidden="true"></i> 设置</span>
+                                <i class="fa fa-chevron-right ip-profile-menu-icon" aria-hidden="true"></i>
+                            </div>
+                        </div>
+
+                        <div style="font-size: 16px; font-weight: 600; color: var(--ip-black); margin: 24px 0 12px;">
+                            最近打卡
+                        </div>
+                        <div class="ip-card">
+                            <div class="ip-card-title">
+                                北小湖
+                                <span class="ip-card-tag">昨天</span>
+                            </div>
+                            <div class="ip-card-desc">
+                                在这里读完了《内向作为一种生活方式》的最后一章，内心平静且充实
+                            </div>
+                            <div class="ip-card-meta">
+                                <span>阅读 · 45分钟</span>
+                                <span><i class="fa fa-heart" aria-hidden="true" style="color: var(--ip-primary);"></i></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="ip-page" id="page-detail">
+                        <div class="ip-detail-header">
+                            <img src="https://picsum.photos/800/400?nature=forest" alt="点位图片" class="ip-detail-img">
+                            <div class="ip-detail-back" onclick="goBack()">
+                                <i class="fa fa-chevron-left" aria-hidden="true"></i>
+                            </div>
+                        </div>
+
+                        <div id="detail-title" class="ip-detail-title">林间小道</div>
+                        <div class="ip-detail-tags">
+                            <span class="ip-card-tag">冥想放空</span>
+                            <span class="ip-card-tag">人少安静</span>
+                            <span class="ip-card-tag">步行5分钟</span>
+                        </div>
+
+                        <div class="ip-detail-desc">
+                            林间小道位于朝阳公园东北部，是被茂密绿植环绕的静谧步道，全长约200米，远离主路和人群聚集区，平均人流量仅为公园核心区的1/5。<br><br>
+                            这里的环境噪音低于40分贝，阳光透过树叶缝隙形成斑驳的光影，微风拂过树叶的沙沙声是唯一的背景音，非常适合静坐冥想、深呼吸、放空思绪。<br><br>
+                            推荐体验：带上折叠坐垫，在这里静坐15-20分钟，专注于自己的呼吸，感受自然的治愈力量。
+                        </div>
+
+                        <div class="ip-detail-action">
+                            <button class="ip-detail-btn ip-detail-btn-secondary" onclick="showToast('已收藏该i点位')">
+                                <i class="fa fa-star-o" aria-hidden="true"></i> 收藏
+                            </button>
+                            <button class="ip-detail-btn ip-detail-btn-primary" onclick="toggleRouteCheck(this)">
+                                <i class="fa fa-map-o" aria-hidden="true"></i> 加入路线
+                            </button>
+                        </div>
+
+                        <div style="font-size: 16px; font-weight: 600; color: var(--ip-black); margin-bottom: 12px;">
+                            内向者体验建议
+                        </div>
+                        <div class="ip-card">
+                            <div class="ip-card-title">
+                                <i class="fa fa-lightbulb-o" aria-hidden="true" style="color: var(--ip-yellow);"></i>
+                                体验小提示
+                            </div>
+                            <div class="ip-card-desc">
+                                1. 建议工作日上午10点前或下午3点后前往，此时人流量最少<br>
+                                2. 可携带降噪耳机（非必需），增强独处的沉浸感<br>
+                                3. 准备小坐垫，提升久坐的舒适度<br>
+                                4. 无需担心被打扰，这里的游客都保持着安静的默契
+                            </div>
+                        </div>
+
+                        <div style="font-size: 16px; font-weight: 600; color: var(--ip-black); margin: 24px 0 12px;">
+                            他人体验
+                        </div>
+                        <div class="ip-ugc-item" style="border-bottom: none;">
+                            <div class="ip-ugc-avatar" style="background-image: url('https://picsum.photos/200/200?random=104');"></div>
+                            <div class="ip-ugc-content">
+                                <div class="ip-ugc-name">独处的猫</div>
+                                <div class="ip-ugc-text">在这里冥想20分钟，感觉一周的焦虑都被抚平了，是我在朝阳公园的秘密基地</div>
+                                <div class="ip-ugc-meta">
+                                    <span>3天前</span>
+                                    <span><i class="fa fa-heart-o" aria-hidden="true"></i> 36</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <nav class="ip-tabbar">
+                        <div class="ip-tab-item active" onclick="goPage('home')">
+                            <div class="ip-tab-icon"><i class="fa fa-map-marker" aria-hidden="true"></i></div>
+                            <div class="ip-tab-label">i点位</div>
+                        </div>
+                        <div class="ip-tab-item" onclick="goPage('route')">
+                            <div class="ip-tab-icon"><i class="fa fa-map-o" aria-hidden="true"></i></div>
+                            <div class="ip-tab-label">i路线</div>
+                        </div>
+                        <div class="ip-tab-item" onclick="goPage('community')">
+                            <div class="ip-tab-icon"><i class="fa fa-users" aria-hidden="true"></i></div>
+                            <div class="ip-tab-label">i社区</div>
+                        </div>
+                        <div class="ip-tab-item" onclick="goPage('me')">
+                            <div class="ip-tab-icon"><i class="fa fa-user-o" aria-hidden="true"></i></div>
+                            <div class="ip-tab-label">我的</div>
+                        </div>
+                    </nav>
+
+                    <div class="ip-toast" id="toast">操作成功</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 全局状态管理
+        let currentPage = 'home';
+        let prevPage = '';
+        let currentPoint = '';
+        
+        // 筛选图片映射
+        const filterImageMap = {
+            'all': 'https://p11-flow-imagex-download-sign.byteimg.com/tos-cn-i-a9rns2rl98/650b960f8ad24831870b35229a9c9ac9.png~tplv-a9rns2rl98-24:720:720.png?lk3s=8e244e95&rcl=202603150103283F2B44008B1E2283392A&rrcfp=8a172a1a&x-expires=1774112609&x-signature=NJbeb5%2FuvLmdYznBalSHjyLqWng%3D',
+            'meditate': 'https://p26-flow-imagex-download-sign.byteimg.com/tos-cn-i-a9rns2rl98/b312e55d8c1a43d3a93ca7e545e0310f.png~tplv-a9rns2rl98-24:720:720.png?lk3s=8e244e95&rcl=2026031519242966C8F518026C7CCAC612&rrcfp=8a172a1a&x-expires=1774178669&x-signature=Nv%2BcJLF1R6CKY3xwhH2kY3ukjf8%3D',
+            'read': 'https://p3-flow-imagex-download-sign.byteimg.com/tos-cn-i-a9rns2rl98/7addaeda6bfd44a8ae1ca40ead7dc097.png~tplv-a9rns2rl98-24:720:720.png?lk3s=8e244e95&rcl=2026031519242966C8F518026C7CCAC612&rrcfp=8a172a1a&x-expires=1774178669&x-signature=ytVsX90ztrLyOQnX8Hn7WrgjWV0%3D',
+            'dog': 'https://p3-flow-imagex-download-sign.byteimg.com/tos-cn-i-a9rns2rl98/eb032d96ebd949429ab8e2ceff3c7071.png~tplv-a9rns2rl98-24:720:720.png?lk3s=8e244e95&rcl=2026031519242966C8F518026C7CCAC612&rrcfp=8a172a1a&x-expires=1774178669&x-signature=F2slr0Ix7MB1jjgB6sl6deQ6OSU%3D',
+            'camp': 'https://p11-flow-imagex-download-sign.byteimg.com/tos-cn-i-a9rns2rl98/0dcbd86e05ee4e83809811437d81811a.png~tplv-a9rns2rl98-24:720:720.png?lk3s=8e244e95&rcl=2026031519242966C8F518026C7CCAC612&rrcfp=8a172a1a&x-expires=1774178669&x-signature=K9AoA36nRl%2FKB%2FqcShe0ZBFOjJo%3D',
+            'coffee': 'https://p26-flow-imagex-download-sign.byteimg.com/tos-cn-i-a9rns2rl98/c4968a7887ee4b78afd67d6e243aaf4e.png~tplv-a9rns2rl98-24:720:720.png?lk3s=8e244e95&rcl=2026031519242966C8F518026C7CCAC612&rrcfp=8a172a1a&x-expires=1774178669&x-signature=tViALoWmZLMqUag9l57CHUGUEoQ%3D'
+        };
+
+        // ====================== 开屏页核心逻辑 (APP级安全设计) ======================
+        function enterApp() {
+            const splashScreen = document.getElementById('splash-screen');
+            // 仅允许点击关闭开屏页
+            splashScreen.style.opacity = '0';
+            setTimeout(() => {
+                splashScreen.style.display = 'none';
+                // 释放触摸操作权限
+                document.querySelector('.iphone-17').style.touchAction = 'auto';
+                document.querySelector('.iphone-screen').style.touchAction = 'auto';
+                showToast('欢迎来到iπ · 内向者的公园');
+            }, 800);
+        }
+
+        // ====================== 原有业务逻辑 (完整保留) ======================
+        function goPage(pageId, pointName = '') {
+            document.querySelectorAll('.ip-page').forEach(page => {
+                page.classList.remove('active');
+            });
+            
+            prevPage = currentPage;
+            currentPage = pageId;
+            
+            const titleMap = {
+                'home': 'iπ · 内向者的公园',
+                'route': '我的专属i路线',
+                'community': 'i人社区',
+                'me': '我的iπ',
+                'detail': pointName || 'i点位详情'
+            };
+            document.getElementById('page-title').textContent = titleMap[pageId];
+            
+            const actionMap = {
+                'home': '更多',
+                'route': '保存',
+                'community': '发布',
+                'me': '设置',
+                'detail': ''
+            };
+            document.getElementById('nav-action').textContent = actionMap[pageId];
+            
+            document.querySelectorAll('.ip-tab-item').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            if (pageId !== 'detail') {
+                document.querySelector(`.ip-tab-item:nth-child(${
+                    pageId === 'home' ? 1 : 
+                    pageId === 'route' ? 2 : 
+                    pageId === 'community' ? 3 : 4
+                })`).classList.add('active');
+            }
+            
+            document.getElementById(`page-${pageId}`).classList.add('active');
+            
+            if (pageId === 'detail' && pointName) {
+                currentPoint = pointName;
+                document.getElementById('detail-title').textContent = pointName;
+                updateDetailContent(pointName);
+            }
+            
+            const tipMap = {
+                'home': '回到i点位首页',
+                'route': '进入路线定制页面',
+                'community': '进入i人社区',
+                'me': '进入个人中心'
+            };
+            if (tipMap[pageId]) {
+                showToast(tipMap[pageId]);
+            }
+        }
+
+        function goBack() {
+            goPage(prevPage);
+        }
+
+        function updateDetailContent(pointName) {
+            const detailImg = document.querySelector('.ip-detail-img');
+            const detailDesc = document.querySelector('.ip-detail-desc');
+            
+            switch(pointName) {
+                case '林间小道':
+                    detailImg.src = 'https://p26-flow-imagex-download-sign.byteimg.com/tos-cn-i-a9rns2rl98/b312e55d8c1a43d3a93ca7e545e0310f.png~tplv-a9rns2rl98-24:720:720.png?lk3s=8e244e95&rcl=2026031519242966C8F518026C7CCAC612&rrcfp=8a172a1a&x-expires=1774178669&x-signature=Nv%2BcJLF1R6CKY3xwhH2kY3ukjf8%3D';
+                    break;
+                case '北小湖':
+                    detailImg.src = 'https://p3-flow-imagex-download-sign.byteimg.com/tos-cn-i-a9rns2rl98/7addaeda6bfd44a8ae1ca40ead7dc097.png~tplv-a9rns2rl98-24:720:720.png?lk3s=8e244e95&rcl=2026031519242966C8F518026C7CCAC612&rrcfp=8a172a1a&x-expires=1774178669&x-signature=ytVsX90ztrLyOQnX8Hn7WrgjWV0%3D';
+                    document.getElementById('detail-title').textContent = '北小湖';
+                    document.querySelector('.ip-detail-tags').innerHTML = `
+                        <span class="ip-card-tag">安静读书</span>
+                        <span class="ip-card-tag">视野开阔</span>
+                        <span class="ip-card-tag">步行8分钟</span>
+                    `;
+                    detailDesc.innerHTML = `
+                        北小湖位于朝阳公园北部，是一个小型人工湖，湖边设有木质长椅，视野开阔且远离主路，平均人流量仅为公园核心区的1/8。<br><br>
+                        湖面平静如镜，偶尔有野鸭游过，微风拂过湖面带来清新的水汽，非常适合安静读书、写笔记、思考问题。<br><br>
+                        推荐体验：带上一本喜欢的书，坐在湖边长椅上，沉浸在文字的世界里，偶尔抬头看看湖面，让思绪随波飘荡。
+                    `;
+                    break;
+                case '白桦林':
+                    detailImg.src = 'https://p11-flow-imagex-download-sign.byteimg.com/tos-cn-i-a9rns2rl98/0dcbd86e05ee4e83809811437d81811a.png~tplv-a9rns2rl98-24:720:720.png?lk3s=8e244e95&rcl=2026031519242966C8F518026C7CCAC612&rrcfp=8a172a1a&x-expires=1774178669&x-signature=K9AoA36nRl%2FKB%2FqcShe0ZBFOjJo%3D';
+                    document.getElementById('detail-title').textContent = '白桦林';
+                    document.querySelector('.ip-detail-tags').innerHTML = `
+                        <span class="ip-card-tag">轻量露营</span>
+                        <span class="ip-card-tag">林间空地</span>
+                        <span class="ip-card-tag">步行12分钟</span>
+                    `;
+                    detailDesc.innerHTML = `
+                        白桦林位于朝阳公园西北部，是一片以白桦树为主的小型林间空地，面积约50平方米，地面平整，周围被树木环绕，私密性极佳。<br><br>
+                        这里允许搭建轻量化露营装备（无明火），没有商业设施的打扰，只有自然的声音，非常适合一个人露营、野餐、发呆。<br><br>
+                        推荐体验：带上轻量化露营椅和咖啡，在这里度过一个安静的下午，享受与自然独处的美好时光。
+                    `;
+                    break;
+            }
+        }
+
+        function filterTag(el, type) {
+            document.querySelectorAll('.ip-filter-tag').forEach(tag => {
+                tag.classList.remove('active');
+            });
+            el.classList.add('active');
+            
+            const mapImg = document.getElementById('ip-map-img');
+            mapImg.src = filterImageMap[type] || filterImageMap['all'];
+            
+            let tip = '已筛选：';
+            switch(type) {
+                case 'all': tip += '全部i点位'; break;
+                case 'meditate': tip += '冥想放空'; break;
+                case 'read': tip += '安静读书'; break;
+                case 'dog': tip += '遛狗散步'; break;
+                case 'camp': tip += '轻量露营'; break;
+                case 'coffee': tip += '咖啡小憩'; break;
+            }
+            showToast(tip);
+        }
+
+        function toggleRouteCheck(el) {
+            el.classList.toggle('active');
+        }
+
+        function generateRoute() {
+            const checkedItems = document.querySelectorAll('.ip-route-check.active');
+            if (checkedItems.length === 0) {
+                showToast('请至少选择一个i点位');
+                return;
+            }
+            
+            let pointNames = [];
+            checkedItems.forEach(item => {
+                const name = item.parentElement.querySelector('div').textContent;
+                pointNames.push(name);
+            });
+            
+            showToast(`已为你生成包含${pointNames.join('、')}的专属i路线`);
+            
+            setTimeout(() => {
+                goPage('home');
+            }, 2000);
+        }
+
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.classList.add('show');
+            
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 2000);
+        }
+
+        // ====================== APP级防穿透防护 (关键保障) ======================
+        // 1. 全局禁止滚动
+        document.body.style.overflow = 'hidden';
+        
+        // 2. 拦截所有触摸事件 (开屏页显示时)
+        document.addEventListener('touchstart', function(e) {
+            const splashScreen = document.getElementById('splash-screen');
+            if (splashScreen.style.display !== 'none' && e.target !== splashScreen) {
+                e.preventDefault();
+                e.stopPropagation();
+            }
+        }, { passive: false });
+
+        document.addEventListener('touchmove', function(e) {
+            const splashScreen = document.getElementById('splash-screen');
+            if (splashScreen.style.display !== 'none') {
+                e.preventDefault();
+                e.stopPropagation();
+            }
+        }, { passive: false });
+
+        document.addEventListener('touchend', function(e) {
+            const splashScreen = document.getElementById('splash-screen');
+            if (splashScreen.style.display !== 'none' && e.target !== splashScreen) {
+                e.preventDefault();
+                e.stopPropagation();
+            }
+        }, { passive: false });
+
+        // 3. 拦截键盘操作
+        document.addEventListener('keydown', function(e) {
+            const splashScreen = document.getElementById('splash-screen');
+            if (splashScreen.style.display !== 'none') {
+                // 仅保留基础功能键
+                const allowedKeys = ['Tab', 'Shift', 'Ctrl', 'Alt', 'Meta'];
+                if (!allowedKeys.includes(e.key)) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                }
+            }
+        });
+
+        // 4. 禁止双击缩放
+        document.addEventListener('dblclick', function(e) {
+            const splashScreen = document.getElementById('splash-screen');
+            if (splashScreen.style.display !== 'none') {
+                e.preventDefault();
+                e.stopPropagation();
+            }
+        });
+    </script>
+</body>
+</html>
